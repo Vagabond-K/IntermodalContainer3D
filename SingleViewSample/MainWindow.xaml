@@ -1,0 +1,158 @@
+﻿<Window
+    x:Class="SingleViewSample.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ic3d="clr-namespace:IntermodalContainers;assembly=IntermodalContainers"
+    xmlns:local="clr-namespace:SingleViewSample"
+    mc:Ignorable="d"
+    ThemeMode="Dark"
+    Title="Single View Sample" Height="450" Width="1024">
+    <Window.Background>
+        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+            <GradientStop Color="#FF0E0E0E"/>
+            <GradientStop Color="#FF7F7F7F" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Background>
+    <Window.Resources>
+        <VisualBrush x:Key="CustomTexture">
+            <VisualBrush.Visual>
+                <ic3d:ContainerTexture
+                    Size="{Binding SelectedValue, ElementName=sizeSelector}"
+                    RoofTemplate="{x:Null}"
+                    FloorTemplate="{x:Null}"
+                    DoorTemplate="{x:Null}"
+                    FrontTemplate="{x:Null}"
+                    RightSideTemplate="{Binding LeftSideTemplate, RelativeSource={RelativeSource Mode=Self}}">
+                    <ic3d:ContainerTexture.CacheMode>
+                        <BitmapCache/>
+                    </ic3d:ContainerTexture.CacheMode>
+                    <ic3d:ContainerTexture.LeftSideTemplate>
+                        <DataTemplate>
+                            <Viewbox>
+                                <TextBlock Text="{Binding Text, ElementName=containerName}" Foreground="White" FontWeight="Bold" Margin="4"/>
+                            </Viewbox>
+                        </DataTemplate>
+                    </ic3d:ContainerTexture.LeftSideTemplate>
+                </ic3d:ContainerTexture>
+            </VisualBrush.Visual>
+        </VisualBrush>
+    </Window.Resources>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+            <ListBox x:Name="brushSelector" SelectedIndex="0" BorderThickness="0" Background="{x:Null}" Margin="10" VerticalAlignment="Center">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Ellipse Fill="{Binding}" Width="20" Height="20" ToolTip="{Binding Color}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <SolidColorBrush Color="SteelBlue"/>
+                <SolidColorBrush Color="#FF808080"/>
+                <SolidColorBrush Color="#FF6B0000"/>
+                <SolidColorBrush Color="#FFB96600"/>
+                <SolidColorBrush Color="#FF002E61"/>
+                <SolidColorBrush Color="#FF007B29"/>
+            </ListBox>
+            <ListBox x:Name="sizeSelector" SelectedIndex="0" BorderThickness="0" Background="{x:Null}" Margin="10" SelectedValuePath="Tag" VerticalAlignment="Center">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <RadioButton
+                                        Content="{Binding Text}"
+                                        Foreground="White"
+                                        MinWidth="0"
+                                        GroupName="SizeSelectorGroup"
+                                        Margin="10,0"
+                                        IsChecked="{Binding IsSelected, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <TextBlock Text="40ft">
+                    <TextBlock.Tag>
+                        <Size3D>12.192,2.438,2.591</Size3D>
+                    </TextBlock.Tag>
+                </TextBlock>
+                <TextBlock Text="20ft">
+                    <TextBlock.Tag>
+                        <Size3D>6.058,2.438,2.591</Size3D>
+                    </TextBlock.Tag>
+                </TextBlock>
+            </ListBox>
+            <TextBox x:Name="containerName" Text="Vagabond K" Width="200" Margin="10" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <Viewport3D Grid.Row="1" Margin="-10">
+            <Viewport3D.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard RepeatBehavior="Forever">
+                            <DoubleAnimation Duration="0:0:10" From="0" To="360" Storyboard.TargetName="rotation" Storyboard.TargetProperty="Angle"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Viewport3D.Triggers>
+            <Viewport3D.Camera>
+                <PerspectiveCamera x:Name="camera" Position="0,20,10" LookDirection="0,-1,-0.5" UpDirection="0,0,1" FieldOfView="40">
+                    <PerspectiveCamera.Transform>
+                        <RotateTransform3D>
+                            <RotateTransform3D.Rotation>
+                                <AxisAngleRotation3D x:Name="rotation" Axis="0,0,1" Angle="0"/>
+                            </RotateTransform3D.Rotation>
+                        </RotateTransform3D>
+                    </PerspectiveCamera.Transform>
+                </PerspectiveCamera>
+            </Viewport3D.Camera>
+            <ModelVisual3D>
+                <ModelVisual3D.Content>
+                    <Model3DGroup>
+                        <AmbientLight Color="#FF404040"/>
+                        <DirectionalLight Color="White" Direction="0,-1,-1.5" Transform="{Binding Transform, ElementName=camera}"/>
+                    </Model3DGroup>
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+            <ic3d:Container3D
+                Size="{Binding SelectedValue, ElementName=sizeSelector}"
+                Background="{Binding SelectedValue, ElementName=brushSelector}">
+                <ic3d:Container3D.BaseMaterial>
+                    <DiffuseMaterial Brush="{StaticResource CustomTexture}"/>
+                </ic3d:Container3D.BaseMaterial>
+            </ic3d:Container3D>
+        </Viewport3D>
+
+        <TextBlock Grid.Row="1" DataContext="{Binding SelectedValue, ElementName=sizeSelector}" Foreground="White" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="10">
+            <Run Text="{Binding X}"/>m × <Run Text="{Binding Y}"/>m × <Run Text="{Binding Z}"/>m
+        </TextBlock>
+
+        <Viewbox Grid.Column="1" Grid.Row="1" Margin="10">
+            <Grid>
+                <Rectangle Fill="{Binding SelectedValue, ElementName=brushSelector}"/>
+                <Rectangle Fill="{StaticResource CustomTexture}"/>
+                <ic3d:ContainerTexture Size="{Binding SelectedValue, ElementName=sizeSelector}"/>
+            </Grid>
+        </Viewbox>
+    </Grid>
+</Window>

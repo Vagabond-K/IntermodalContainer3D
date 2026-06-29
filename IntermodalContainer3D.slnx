@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="IntermodalContainers/IntermodalContainers.csproj" />
+  <Project Path="SingleViewSample/SingleViewSample.csproj" />
+</Solution>
